@@ -30,16 +30,25 @@ const createPostFunc = () => {
     error.value.text = null;
     error.value.file = null;
 
+    // making POST request to the server from the inertia page
     router.post("/posts", form, {
-        forceFormData: true,
-        preserveScroll: true,
+        forceFormData: true, // "multipart/form-data" mostly to send files (images, documents, etc..) over the network
+        preserveScroll: true, // preventing the browser from scrolling to the top of the page after the request is complete.
+        onError: (errors) => {
+            errors && errors.text ? (error.value.text = errors.text) : "";
+            errors && errors.file ? (error.value.file = errors.file) : "";
+        },
+        onSuccess: () => {
+            closeOverlay();
+        },
     });
 };
 
 const getUploadedImage = (e) => {
     form.file = e.target.files[0];
+    // "exampleString.substring(4) === pleString"
     let extension = form.file.name.substring(
-        form.file.name.lastIndexOf(".") + 1
+        form.file.name.lastIndexOf(".") + 1 // lastIndexOf gives the last index number of the givemn character
     );
 
     if (validExtensions.includes(extension)) {
